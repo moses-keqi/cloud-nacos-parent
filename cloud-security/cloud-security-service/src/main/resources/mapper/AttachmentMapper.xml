@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moses.cloud.security.mapper.AttachmentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.moses.cloud.security.po.Attachment">
+        <result column="OBJECT_ID" property="objectId" />
+        <result column="OLD_NAME" property="oldName" />
+        <result column="NEW_NAME" property="newName" />
+        <result column="TYPE_" property="type" />
+        <result column="FILE_TYPE" property="fileType" />
+        <result column="STORAGE_TYPE" property="storageType" />
+        <result column="THUMBNAIL_URL" property="thumbnailUrl" />
+        <result column="PATH_" property="path" />
+        <result column="URL_" property="url" />
+        <result column="POSITION" property="position" />
+        <result column="SORT_INDEX" property="sortIndex" />
+        <result column="CREATE_BY" property="createBy" />
+        <result column="CREATE_NAME" property="createName" />
+        <result column="CREATE_TIME" property="createTime" />
+        <result column="UPDATE_BY" property="updateBy" />
+        <result column="UPDATE_NAME" property="updateName" />
+        <result column="UPDATE_TIME" property="updateTime" />
+        <result column="DELETED" property="deleted" />
+        <result column="ID" property="id" />
+        <result column="BUCKET_NAME" property="bucketName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        OBJECT_ID, OLD_NAME, NEW_NAME, TYPE_, FILE_TYPE, STORAGE_TYPE, THUMBNAIL_URL, PATH_, URL_, POSITION, SORT_INDEX, CREATE_BY, CREATE_NAME, CREATE_TIME, UPDATE_BY, UPDATE_NAME, UPDATE_TIME, DELETED, ID, BUCKET_NAME
+    </sql>
+	 
+	 
+    <update id="updateAttachment"  parameterType="java.lang.String">
+	    UPDATE 
+	    	SYS_ATTACHMENT
+	    SET 
+	    	OBJECT_ID = #{objectId}
+	    WHERE 
+	    	ID = #{id}
+	 </update>
+	 
+	 <!-- 根据ObjectId查询附件列表 -->
+	 <select id="selectAttachByObjectId" resultMap="BaseResultMap">
+	    select 
+	    	<include refid="Base_Column_List"></include> 
+	    	FROM SYS_ATTACHMENT
+	    WHERE type_ in ('ZMJL','OFFER','IOM','ED','BKF','BKB','IDF','IDB','DP','EDO','CHSI')
+	    and OBJECT_ID = #{objectId}
+	 </select>
+
+    <select id="selectByIdList" parameterType="java.util.List" resultMap="BaseResultMap">
+        SELECT ID, PATH_ FROM SYS_ATTACHMENT WHERE ID IN
+        <foreach collection="idList" item="id" index="index" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+	 
+</mapper>

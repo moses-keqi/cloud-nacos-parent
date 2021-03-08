@@ -1,0 +1,79 @@
+server:
+  port: 9083
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  #    mapUnderscoreToCamelCase: true
+  mapper-locations: classpath*:mapper/*Mapper.xml
+  type-aliases-package: com.moses.**.po
+
+  global-config:
+    # 是否控制台 print mybatis-plus 的 LOGO
+    banner: false
+    db-config:
+      id-type: ASSIGN_UUID
+      # 表名是否使用下划线命名，默认数据库表使用下划线命名
+      table-underline: true
+
+spring:
+  datasource:
+    name: cloud
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:3306/demo-test?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true
+      username: root
+      password: a123456
+      max-active: 100
+      initial-size: 1
+      max-wait: 60000
+      min-idle: 1
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: select 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-open-prepared-statements: 50
+      max-pool-prepared-statement-per-connection-size: 20
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 10000
+    database: 0
+    lettuce:
+      pool:
+        max-active: 100
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+
+ribbon:
+  ConnectTimeout: 60000 #请求连接的超时时间，默认时间为1秒
+  ReadTimeout: 60000 #请求处理的超时时间
+  eureka:
+    enabled: true
+
+
+shiro:
+  security:
+    token:
+      enabled: true
+      # 全部放行，交给zuul 处理
+      filter-chain-definitions: /**=anon
+      secretkey: JeF8U9wHFOMfs2Y8
+      expiretime: 604800
+
+logging:
+  file:
+    name: ${spring.application.name}
+    path: /data/log/${spring.application.name}.log
+  level:
+    root: error
+    com.moses: info
+
+moses:
+  aes256:
+    enabled: true

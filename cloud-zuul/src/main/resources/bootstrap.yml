@@ -1,0 +1,14 @@
+
+spring:
+  profiles:
+    active: ${AGENT_ENV:dev}
+  application:
+    name: zuul-service
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:28848
+      discovery:
+        server-addr: 127.0.0.1:28848
+
+

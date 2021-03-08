@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moses.cloud.security.mapper.UserRoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.moses.cloud.security.po.UserRole">
+        <result column="USER_ID" property="userId" />
+        <result column="ROLE_ID" property="roleId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        USER_ID, ROLE_ID
+    </sql>
+    
+    <!-- 功能：根据用户ID删除关联关系 作者：GJY -->
+    <delete id="deleteByUserId">
+    	delete sec_user_role where user_id=#{userId} 
+    </delete>
+    
+    <select id="selectByRoleId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    	select <include refid="Base_Column_List"></include> from SEC_USER_ROLE
+    	where ROLE_ID = #{roleId}
+    </select>
+    
+     <!-- 功能：根据用户ID和角色ID删除关联关系 作者：GJY -->
+    <delete id="deleteByUserRoleId">
+    	delete sec_user_role where user_id=#{userId} and ROLE_ID = #{roleId}
+    </delete>
+
+</mapper>

@@ -1,0 +1,52 @@
+-- ----------------------------
+-- Table structure for SYS_ATTACHMENT
+-- ----------------------------
+IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[SYS_ATTACHMENT]') AND type IN ('U'))
+	DROP TABLE [dbo].[SYS_ATTACHMENT]
+GO
+
+CREATE TABLE [dbo].[SYS_ATTACHMENT] (
+  [ID] varchar(50) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [OBJECT_ID] varchar(50) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [OLD_NAME] nvarchar(255) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [NEW_NAME] nvarchar(255) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TYPE_] varchar(50) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [FILE_TYPE] varchar(50) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [STORAGE_TYPE] int  NOT NULL,
+  [THUMBNAIL_URL] nvarchar(255) COLLATE Chinese_PRC_CI_AS DEFAULT NULL NULL,
+  [PATH_] nvarchar(255) COLLATE Chinese_PRC_CI_AS DEFAULT NULL NULL,
+  [URL_] nvarchar(255) COLLATE Chinese_PRC_CI_AS DEFAULT NULL NULL,
+  [POSITION] varchar(50) COLLATE Chinese_PRC_CI_AS  NULL,
+  [SORT_INDEX] int DEFAULT NULL NULL,
+  [CREATE_BY] varchar(50) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [CREATE_NAME] nvarchar(50) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [CREATE_TIME] datetime  NOT NULL,
+  [UPDATE_BY] varchar(50) COLLATE Chinese_PRC_CI_AS DEFAULT NULL NULL,
+  [UPDATE_NAME] nvarchar(50) COLLATE Chinese_PRC_CI_AS DEFAULT NULL NULL,
+  [UPDATE_TIME] datetime DEFAULT NULL NULL,
+  [DELETED] bit  NOT NULL,
+  [BUCKET_NAME] nvarchar(255) COLLATE Chinese_PRC_CI_AS  NULL
+)
+GO
+
+-- ----------------------------
+-- Indexes structure for table SYS_ATTACHMENT
+-- ----------------------------
+CREATE NONCLUSTERED INDEX [IDX_SYS_ATTACHMENT_ID]
+ON [dbo].[SYS_ATTACHMENT] (
+  [ID] ASC
+)
+GO
+
+CREATE NONCLUSTERED INDEX [IDX_SYS_ATTACHMENT_OBJECT_ID]
+ON [dbo].[SYS_ATTACHMENT] (
+  [OBJECT_ID] ASC
+)
+GO
+
+CREATE NONCLUSTERED INDEX [IDX_SYS_ATTACHMENT_TYPE_]
+ON [dbo].[SYS_ATTACHMENT] (
+  [TYPE_] ASC
+)
+GO
+

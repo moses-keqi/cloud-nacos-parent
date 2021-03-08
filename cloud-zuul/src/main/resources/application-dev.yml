@@ -1,0 +1,108 @@
+server:
+  port: 9082
+
+# ribbon global config
+ribbon:
+  ConnectTimeout: 60000 #请求连接的超时时间，默认时间为1秒
+  ReadTimeout: 60000 #请求处理的超时时间
+  eureka:
+    enabled: true
+
+spring:
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: false
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 10000
+    database: 0
+    lettuce:
+      pool:
+        max-active: 100
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+  #  main:
+  #    allow-bean-definition-overriding: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+
+zuul:
+  retryable: false
+  routes:
+    security-service:
+      path: /security-service/**
+      serviceId: security-service
+    message-service:
+      path: /message-service/**
+      serviceId: message-service
+    customer-service:
+      path: /customer-service/**
+      serviceId: customer-service
+    policy-service:
+      path: /policy-service/**
+      serviceId: policy-service
+  ribbon-isolation-strategy: THREAD
+  threadPool.useSeparateThreadPools: true
+  sensitive-headers: '*'
+  # TODO 如果不是使用IP 禁止开始
+  add-host-header: true
+  host:
+    maxTotalConnections: 200
+    maxPerRouteConnections: 200
+    connect-timeout-millis: 6000
+
+
+shiro:
+  security:
+    token:
+      enabled: true
+      login-url: /api/login
+      logout-url: /api/logout
+      manage-login-url: /mapi/login
+      manage-logout-url: /mapi/logout
+      expiretime: 604800
+      credentials-matcher: sm3
+      filter-chain-definitions:
+        - /security-service/api/common/system-device=anon
+        - /security-service/api/common/system-send-sms=anon
+        - /security-service/api/update-version/**=anon
+        - /security-service/api/common/system-off-line=anon
+        - /security-service/mapi/common/**=user
+        - /**/api/**=utoken
+        - /**/mapi/**=utoken
+
+logging:
+  file:
+    name: ${spring.application.name}
+    path: /data/log/${spring.application.name}.log
+  level:
+    root: error
+    com.moses: info
+
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 60000
+        read-timeout: 60000
+#  hystrix:
+#    enabled: true
+
+# 具体配置请查看 @see com.netflix.hystrix.HystrixCommandProperties
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread.timeoutInMilliseconds: 240000 #TODO ribbon (ConnectTimeout+ReadTimeout)*(最大重试次数+1)*(最大重试服务个数+1)
+  threadpool:
+    default:
+      coreSize: 500 #并发执行的最大线程数，默认10

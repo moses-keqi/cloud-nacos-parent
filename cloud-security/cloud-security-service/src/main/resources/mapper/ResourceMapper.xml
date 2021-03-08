@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moses.cloud.security.mapper.ResourceMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.moses.cloud.security.po.Resource">
+		<id column="ID" property="id" />
+		<result column="NAME" property="name" />
+		<result column="RESOURCE_STRING" property="resourceString" />
+		<result column="PERMISSION_STRING" property="permissionString" />
+		<result column="CREATE_BY" property="createBy" />
+		<result column="CREATE_NAME" property="createName" />
+		<result column="CREATE_TIME" property="createTime" />
+		<result column="UPDATE_BY" property="updateBy" />
+		<result column="UPDATE_NAME" property="updateName" />
+		<result column="UPDATE_TIME" property="updateTime" />
+		<result column="TYPE" property="type" />
+		<result column="APP_TYPE" property="appType" />
+		<result column="DISABLED" property="disabled" />
+	</resultMap>
+
+	<!-- 通用查询结果列 -->
+	<sql id="Base_Column_List">
+        ID, NAME, RESOURCE_STRING, PERMISSION_STRING, CREATE_BY, CREATE_NAME, CREATE_TIME, UPDATE_BY, UPDATE_NAME, UPDATE_TIME, TYPE, APP_TYPE, DISABLED
+    </sql>
+
+	<!-- 通过条件查询分页 LPF-->
+	<select id="pageByCondition" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		from SEC_RESOURCE
+		<where>
+			<if test="condition.name!= null and condition.name!='' " >
+				AND NAME like concat(concat('%',#{condition.name}),'%')
+			</if>
+			<if test="condition.resourceString!= null and condition.resourceString!='' " >
+				AND RESOURCE_STRING like concat(concat('%',#{condition.resourceString}),'%')
+			</if>
+			<if test="condition.permissionString!= null and condition.permissionString!='' " >
+				AND PERMISSION_STRING like concat(concat('%',#{condition.permissionString}),'%')
+			</if>
+			<if test="condition.used != null and !condition.used">
+				AND NOT EXISTS (select 1 from SEC_MENU_RESOURCE b where b.RESOURCE_ID = SEC_RESOURCE.ID)
+			</if>
+			<if test="condition.enabled != null and condition.enabled">
+				AND DISABLED = 1
+			</if>
+			<if test="condition.enabled != null and !condition.enabled">
+				AND DISABLED = 0
+			</if>
+			<if test="condition.appType != null and condition.appType!=''">
+				AND APP_TYPE = #{condition.appType}
+			</if>
+		</where>
+		ORDER BY CREATE_TIME DESC
+	</select>
+
+	<!--校验资源、授权码是否存在  LPF-->
+	<select id="queryResource" parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		from SEC_RESOURCE
+		<where>
+			<if test="resourceString!= null and resourceString!='' " >
+				AND RESOURCE_STRING =#{resourceString}
+			</if>
+			<if test="permissionString!= null and permissionString!='' " >
+				AND PERMISSION_STRING=#{permissionString}
+			</if>
+		</where>
+	</select>
+
+
+	<select id="findByRoleIds" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List" />
+		from
+		SEC_RESOURCE inner join SEC_ROLE_RESOURCE rr on rr.RESOURCE_ID = ID
+		where
+		rr.ROLE_ID in
+		<foreach collection="roleIds" open="(" close=")" item="item" separator=",">
+			#{item}
+		</foreach>
+	</select>
+
+	<!-- 功能：查询所有有效资源 作者：GJY -->
+	<select id="findAllResouce" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List" />
+		from  SEC_RESOURCE
+		<where>
+			<if test="appType!= null and appType!='' " >
+				AND APP_TYPE = #{appType}
+			</if>
+		</where>
+		order by CREATE_TIME asc
+	</select>
+
+	<!-- 更新资源启动禁用 WZY -->
+	<update id="updateDisabledById" parameterType="com.moses.cloud.security.po.Resource">
+		update SEC_RESOURCE
+		set
+			DISABLED=#{disabled},
+			UPDATE_BY=#{updateBy},
+			UPDATE_NAME=#{updateName},
+			UPDATE_TIME=#{updateTime}
+		where ID=#{id}
+	</update>
+
+	<!-- 功能：根据菜单Id查询已经绑定的资源，作者：GJY -->
+	<select id="findByMenuId" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List" />
+		from  SEC_RESOURCE r inner join SEC_MENU_RESOURCE MR ON R.ID = MR.RESOURCE_ID AND MR.MENU_ID= #{menuId}
+	</select>
+
+</mapper>

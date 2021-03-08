@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moses.cloud.security.mapper.AboutVersionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.moses.cloud.security.po.AboutVersion">
+        <result column="ID" property="id" />
+        <result column="VERSION" property="version" />
+        <result column="UPDATE_TYPE" property="updateType" />
+        <result column="DESCRIPTION" property="description" />
+        <result column="PRODUCT_NAME" property="productName" />
+        <result column="ENABLED" property="enabled" />
+        <result column="CLIENT" property="client" />
+        <result column="MD5_SECRET" property="md5Secret" />
+        <result column="DOWN_URL" property="downUrl" />
+        <result column="ZIP_SECRET" property="zipSecret" />
+        <result column="ROUTE_CODE" property="routeCode" />
+        <result column="CREATE_BY" property="createBy" />
+        <result column="CREATE_NAME" property="createName" />
+        <result column="CREATE_TIME" property="createTime" />
+        <result column="UPDATE_BY" property="updateBy" />
+        <result column="UPDATE_NAME" property="updateName" />
+        <result column="UPDATE_TIME" property="updateTime" />
+        <result column="DELETED" property="deleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ID,
+        VERSION, UPDATE_TYPE, DESCRIPTION, PRODUCT_NAME, ENABLED, CLIENT, MD5_SECRET, DOWN_URL,
+        ROUTE_CODE, ZIP_SECRET,
+        CREATE_BY,
+        CREATE_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_NAME,
+        UPDATE_TIME,
+        DELETED
+    </sql>
+    <update id="updateDisabledVersion">
+        UPDATE SEC_ABOUT_VERSION
+        SET ENABLED = 0
+        WHERE  PRODUCT_NAME = #{productName} AND CLIENT = #{client}
+    </update>
+    <select id="findVersionAppDescription" resultType="com.moses.cloud.security.vo.FindAboutVersionAppVo">
+        select  <include refid="Base_Column_List"></include>
+        from SEC_ABOUT_VERSION
+        where DELETED = 0
+        <if test="pageForm.version!= null and pageForm.version!='' " >
+            and VERSION = #{pageForm.version}
+        </if>
+        <if test="pageForm.productName!= null and pageForm.productName!='' " >
+            and PRODUCT_NAME = #{pageForm.productName}
+        </if>
+        <if test="pageForm.client!= null and pageForm.client!='' " >
+            and CLIENT = #{pageForm.client}
+        </if>
+        <if test="pageForm.enabled!= null " >
+            and ENABLED = #{pageForm.enabled}
+        </if>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+
+</mapper>

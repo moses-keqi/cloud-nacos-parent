@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moses.cloud.security.mapper.RoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.moses.cloud.security.po.Role">
+        <id column="ID" property="id" />
+        <result column="NAME" property="name" />
+        <result column="ROLE_STRING" property="roleString" />
+        <result column="DISABLED" property="disabled" />
+        <result column="CREATE_BY" property="createBy" />
+        <result column="CREATE_NAME" property="createName" />
+        <result column="CREATE_TIME" property="createTime" />
+        <result column="UPDATE_BY" property="updateBy" />
+        <result column="UPDATE_NAME" property="updateName" />
+        <result column="UPDATE_TIME" property="updateTime" />
+        <result column="APP_TYPE" property="appType" />
+        <result column="DELETED" property="deleted" />
+		<result column="DESC_" property="desc" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ID, NAME, ROLE_STRING, DISABLED, CREATE_BY, CREATE_NAME, CREATE_TIME, UPDATE_BY, UPDATE_NAME, UPDATE_TIME, APP_TYPE, DELETED, DESC_
+    </sql>
+    
+    <!-- 通过条件查询分页 LPF-->
+    <select id="pageByCondition" resultMap="BaseResultMap">
+		SELECT 	
+		   <include refid="Base_Column_List" />
+		from SEC_ROLE r 
+		<where>
+		    <if test="condition.name!= null and condition.name!='' " >
+				 AND NAME like concat(concat('%',#{condition.name}),'%')
+			</if>
+			<if test="condition.roleString!= null and condition.roleString!='' " >
+		 		 AND ROLE_STRING like concat(concat('%',#{condition.roleString}),'%')
+			</if>
+			<if test="condition.disabled!= null" >
+		  		AND DISABLED = #{condition.disabled}
+			</if>
+		</where>
+		ORDER BY CREATE_TIME DESC
+   </select>
+   
+   <!--查询角色授权码是否存在 LPF  -->
+   <select id="queryRole" parameterType="java.lang.String" resultMap="BaseResultMap">
+   		SELECT 	
+		   <include refid="Base_Column_List" />
+		from SEC_ROLE  
+		<where>
+			<if test="roleString!= null and roleString!='' " >
+		 		 AND ROLE_STRING=#{roleString}
+			</if>
+		</where>
+   </select>
+   	
+   	<!-- 根据用户ID查询角色 -->
+	<select id="findByUserId" resultMap="BaseResultMap">
+   		select <include refid="Base_Column_List" />
+   		from SEC_ROLE 
+   		inner join SEC_USER_ROLE ur on ur.ROLE_ID = ID
+   		where ur.USER_ID = #{userId} and DISABLED = 0 and DELETED = 0
+	</select>
+	
+   	<!-- 功能：根据类型查询角色 作者：GJY -->
+	<select id="selectAllRole" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List" />
+   		from SEC_ROLE where DELETED = 0 AND DISABLED = 0
+			<if test="appType!= null and appType!='' " >
+				AND APP_TYPE = #{appType}
+			</if>
+	</select>
+	
+	<!-- 根据用户ID查询角色 -->
+	<select id="findByUserIdAndAppType" resultMap="BaseResultMap">
+   		select <include refid="Base_Column_List" />
+   		from SEC_ROLE 
+   		inner join SEC_USER_ROLE ur on ur.ROLE_ID = ID
+   		where ur.USER_ID = #{userId} and APP_TYPE = #{appType} and DISABLED = 0 and DELETED = 0
+	</select>
+	
+	<select id="findByRoleString" resultMap="BaseResultMap">
+		select 
+		<include refid="Base_Column_List" />
+   		from SEC_ROLE where DELETED = 0 
+			<if test="roleString != null and roleString !='' " >
+				AND ROLE_STRING = #{roleString}
+			</if>
+	</select>
+	
+	<select id="findUserRole" resultType="java.lang.Integer">
+		select count(a.ID) from SEC_USER a 
+		inner join SEC_USER_ROLE  b on a.ID = b.USER_ID
+		where b.ROLE_ID = #{roleId} and b.USER_ID = #{userId}
+	</select>
+
+	<select id="findPadRole" parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM SEC_ROLE
+		WHERE
+			ROLE_STRING IN
+			<foreach item="item" index="index" collection="roleCodeList" open="(" separator="," close=")">
+			#{item}
+			</foreach>
+			AND APP_TYPE = 'pad'
+			AND DELETED = 0
+	</select>
+</mapper>

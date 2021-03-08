@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moses.cloud.security.mapper.DictMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.moses.cloud.security.po.Dict">
+		<id column="ID" property="id" />
+		<result column="CODE" property="code" />
+		<result column="NAME_CN" property="nameCn" />
+		<result column="NAME_EN" property="nameEn" />
+		<result column="DICT_VALUE" property="dictValue" />
+		<result column="PARENT_ID" property="parentId" />
+		<result column="NODE_LEVEL" property="nodeLevel" />
+		<result column="SORT_ORDER" property="sortOrder" />
+		<result column="REMARKS" property="remarks" />
+		<result column="ENABLED" property="enabled" />
+		<result column="SYSTEM_FLAG" property="systemFlag" />
+		<result column="CREATE_BY" property="createBy" />
+		<result column="CREATE_NAME" property="createName" />
+		<result column="CREATE_TIME" property="createTime" />
+		<result column="UPDATE_BY" property="updateBy" />
+		<result column="UPDATE_NAME" property="updateName" />
+		<result column="UPDATE_TIME" property="updateTime" />
+		<result column="DELETED" property="deleted" />
+	</resultMap>
+
+	<!-- 通用查询结果列 -->
+	<sql id="Base_Column_List">
+        ID, CODE, NAME_CN, NAME_EN, DICT_VALUE, PARENT_ID, NODE_LEVEL, REMARKS, SORT_ORDER, ENABLED, SYSTEM_FLAG, CREATE_BY, CREATE_NAME, CREATE_TIME, UPDATE_BY, UPDATE_NAME, UPDATE_TIME, DELETED
+    </sql>
+
+	<!-- 字典Code是否存在 LPF -->
+	<select id="queryDictCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM SYS_DICT WHERE CODE=#{DictCode} and
+		ENABLED = 0 AND DELETED = 0
+	</select>
+
+	<!-- 查询父级下面是否有子级 LPF -->
+	<select id="selectByParentId" parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		SYS_DICT
+		WHERE
+		ENABLED = 0 AND DELETED = 0 and
+		PARENT_ID = #{parentId}
+	</select>
+
+	<!-- 通过条件查询分页 LPF-->
+	<select id="pageByCondition" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		from SYS_DICT
+		WHERE
+		ENABLED = 0 AND DELETED = 0
+		<if test="condition.dictCode!= null and condition.dictCode!='' " >
+			AND CODE like concat(concat('%',#{condition.dictCode}),'%')
+		</if>
+		<if test="condition.dictNameCn!= null and condition.dictNameCn!='' " >
+			AND NAME_CN like concat(concat('%',#{condition.dictNameCn}),'%')
+		</if>
+		<if test="condition.dictNameEn!= null and condition.dictNameEn!='' " >
+			AND NAME_EN like concat(concat('%',#{condition.dictNameEn}),'%')
+		</if>
+		<if test="condition.parentId!= null and condition.parentId!='' " >
+			AND PARENT_ID=#{condition.parentId}
+		</if>
+		<if test="condition.parentId==null or condition.parentId==''" >
+			AND PARENT_ID='0'
+		</if>
+		<if test="condition.systemFlag!=null and condition.systemFlag!=''">
+			AND SYSTEM_FLAG=#{condition.systemFlag}
+		</if>
+		<if test="condition.parentId==null or condition.parentId==''" >
+			ORDER BY CREATE_TIME DESC
+		</if>
+		<if test="condition.parentId!=null and condition.parentId!=''" >
+			ORDER BY SORT_ORDER ASC
+		</if>
+
+	</select>
+
+	<select id="findByParentCode" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		from SYS_DICT
+		where ENABLED = 0 AND DELETED = 0 AND  PARENT_ID = (SELECT ID FROM SYS_DICT WHERE CODE = #{code})
+
+		order by SORT_ORDER ASC
+	</select>
+
+</mapper>

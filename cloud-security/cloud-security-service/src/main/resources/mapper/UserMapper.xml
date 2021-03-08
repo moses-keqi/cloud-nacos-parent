@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moses.cloud.security.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.moses.cloud.security.po.User">
+        <id column="ID" property="id" />
+        <result column="ORG_TYPE" property="orgType" />
+        <result column="CITY_CODE" property="cityCode" />
+        <result column="BRANCH_CODE" property="branchCode" />
+        <result column="NAME" property="name" />
+        <result column="USERNAME" property="username" />
+        <result column="PASSWORD" property="password" />
+        <result column="SALT" property="salt" />
+        <result column="SEX" property="sex" />
+        <result column="PHONE_NO" property="phoneNo" />
+        <result column="EMAIL" property="email" />
+        <result column="LOCKED" property="locked" />
+        <result column="LOCKED_TIME" property="lockedTime" />
+        <result column="EXPIRED" property="expired" />
+        <result column="EXPIRE_TIME" property="expireTime" />
+        <result column="DELETED" property="deleted" />
+        <result column="CREATE_BY" property="createBy" />
+        <result column="CREATE_NAME" property="createName" />
+        <result column="CREATE_TIME" property="createTime" />
+        <result column="UPDATE_BY" property="updateBy" />
+        <result column="UPDATE_NAME" property="updateName" />
+        <result column="UPDATE_TIME" property="updateTime" />
+        <result column="DISTRICT_CODE" property="districtCode" />
+        <result column="DISTRICT_NAME" property="districtName" />
+        <result column="MECHANISM_CODE" property="mechanismCode" />
+        <result column="MECHANISM_NAME" property="mechanismName" />
+        <result column="ENTRY_DATE" property="entryDate" />
+        <result column="AVATAR_URL" property="avatarUrl" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ID, ORG_TYPE, CITY_CODE, BRANCH_CODE, NAME, USERNAME, PASSWORD, SALT, SEX, PHONE_NO, EMAIL, LOCKED, LOCKED_TIME, EXPIRED, EXPIRE_TIME, DELETED, CREATE_BY, CREATE_NAME, CREATE_TIME, UPDATE_BY, UPDATE_NAME, UPDATE_TIME, DISTRICT_CODE, DISTRICT_NAME, MECHANISM_CODE, MECHANISM_NAME, ENTRY_DATE, AVATAR_URL
+    </sql>
+
+
+    <select id="findByUsername" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"></include> from SEC_USER where USERNAME = #{username}
+    </select>
+
+    <select id="findByUsernameAndOrgType" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"></include> from SEC_USER where USERNAME = #{username} and ORG_TYPE = #{orgType}
+    </select>
+
+    <!-- 根据生日或者入职日期查询, double.jia   -->
+    <select id="findByBirthdayOrEntryForm" resultType="com.moses.cloud.security.po.User">
+        select ID, ORG_TYPE, CITY_CODE, BRANCH_CODE, NAME, USERNAME, SEX, PHONE_NO, EMAIL, DISTRICT_CODE, DISTRICT_NAME, MECHANISM_CODE, MECHANISM_NAME, ENTRY_DATE, AVATAR_URL
+        from sec_user
+        where deleted = 0
+        <if test="birthdayDate != null">
+            and CONVERT(varchar(5),birthday,110) = CONVERT(varchar(5),#{birthdayDate},110)
+        </if>
+        <if test="entryDate != null">
+            and CONVERT(varchar(5),entry_date,110) = CONVERT(varchar(5),#{entryDate},110)
+        </if>
+    </select>
+
+    <!-- 功能：设置过期时间  作者：GJY-->
+    <update id="setExpireTime" parameterType="com.moses.cloud.security.po.User">
+		update SEC_USER set
+		EXPIRE_TIME = CONVERT(varchar,#{expireTime},120),
+		EXPIRED = #{expired},
+		UPDATE_BY = #{updateBy},
+		UPDATE_NAME = #{updateName},
+		UPDATE_TIME = CONVERT(varchar,#{updateTime},120)
+		where ID = #{id}
+	</update>
+
+    <!-- 功能：取消过期时间  作者：GJY-->
+    <update id="cancelExpireTime" parameterType="com.moses.cloud.security.po.User">
+		update SEC_USER set
+		EXPIRE_TIME = NULL,
+		EXPIRED = #{expired},
+		UPDATE_BY = #{updateBy},
+		UPDATE_NAME = #{updateName},
+		UPDATE_TIME = CONVERT(varchar,#{updateTime},120)
+		where ID = #{id}
+	</update>
+
+    <!-- 功能：锁定账户  作者：GJY-->
+    <update id="lock" parameterType="com.moses.cloud.security.po.User">
+		update SEC_USER set
+		LOCKED_TIME = CONVERT(varchar,GETDATE(),120),
+		LOCKED = #{locked},
+		UPDATE_BY = #{updateBy},
+		UPDATE_NAME = #{updateName},
+		UPDATE_TIME = CONVERT(varchar,#{updateTime},120)
+		where ID = #{id}
+	</update>
+
+    <!-- 功能：解锁账户  作者：GJY-->
+    <update id="unlock" parameterType="com.moses.cloud.security.po.User">
+		update SEC_USER set
+		LOCKED_TIME = NULL,
+		LOCKED = #{locked},
+		UPDATE_BY = #{updateBy},
+		UPDATE_NAME = #{updateName},
+		UPDATE_TIME = CONVERT(varchar,#{updateTime},120)
+		where ID = #{id}
+	</update>
+
+
+</mapper>
